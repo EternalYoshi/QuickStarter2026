@@ -39,6 +39,9 @@
     <ClInclude Include="utils\umvc3utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IniReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -53,5 +56,14 @@
     <ClCompile Include="utils\umvc3utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IniReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="QuickStarter2026.ini" />
   </ItemGroup>
 </Project>

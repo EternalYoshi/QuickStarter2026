@@ -11,9 +11,10 @@
 #include <iomanip>
 #include <ctime>
 #include "utils/umvc3utils.h"
+#include "IniReader.h"
 
 using namespace Memory::VP;
-
+bool DisableIntro = false;
 #define longlong  long long
 #define ulonglong  unsigned long long
 #define undefined8  long long*
@@ -158,8 +159,13 @@ uint64_t FUN_1402B3390_Offset = 0x1402B3390;
 //FUN_140211EA0
 uint64_t FUN_140211EA0_Offset = 0x140211EA0;
 
+uint64_t FUN_140792A40 = 0x140792A40;
 
+//From n3.
+static int __fastcall Hook_VidIdx(void* p) {
 
+	return 1;
+}
 
 //The original function whose assembly has been ported.
 __attribute__((naked)) void OLD_1402177B0()//0x1402177B0
@@ -546,6 +552,23 @@ void OnInitializeHook()
 {
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 	InjectHook(_addr(0x140217763), tramp->Jump(FUN_1402177B0), HookType::Call);
+
+	if(DisableIntro)
+	{
+		// My attempt at sKipping intro from startup only.
+		InjectHook(_addr(0x1402122AF), tramp->Jump(Hook_VidIdx), HookType::Call);
+		InjectHook(_addr(0x1402122BF), tramp->Jump(Hook_VidIdx), HookType::Call);
+		InjectHook(_addr(0x1402122DE), tramp->Jump(Hook_VidIdx), HookType::Call);
+		InjectHook(_addr(0x1402122BF), tramp->Jump(Hook_VidIdx), HookType::Call);
+		InjectHook(_addr(0x140211F6B), tramp->Jump(Hook_VidIdx), HookType::Call);
+
+		//1402122AF
+		//1402122BF	
+		//1402122DE
+		//1402122AF
+		//1402122BF
+		//140211F6B
+	}
 }
 
 BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
@@ -555,6 +578,11 @@ BOOL WINAPI DllMain(HMODULE hMod, DWORD dwReason, LPVOID lpReserved)
 	case DLL_PROCESS_ATTACH:
 		if (CheckGame())
 		{
+
+			CIniReader ini;
+			DisableIntro = ini.ReadInteger("Settings", "DisableIntro", VK_SPACE);
+
+
 			CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)OnInitializeHook, hMod, 0, nullptr);
 		}
 	case DLL_THREAD_ATTACH:
