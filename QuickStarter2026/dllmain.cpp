@@ -90,7 +90,8 @@ uint64_t get_sAgentSession = 0x1400046E0;
 uint64_t GetsGameConfig = 0x140001AB0;
 uint64_t ThreeMemset = 0x1409A16C0;
 uint64_t DWORD_140B16ED0 = 0x140B16ED0;
-uint64_t DWORD_140A6A420 = 0x140A6A420;
+//uint64_t DWORD_140A6A420 = 0x140A6A420;
+float DWORD_140A6A420 = 1.0;
 uint64_t DWORD_140A6E5C8 = 0x140A6E5C8;
 uint64_t DWORD_140A6A42C = 0x140A6A42C;
 uint64_t FUN_14050D5A0 = 0x14050D5A0;
@@ -140,6 +141,25 @@ uint64_t FUN_14050f550_Offset = 0x14050f550;
 uint64_t UI_AddChildToScene_Offset = 0x14051A6B0;
 
 uint64_t GetSomeGlobalPointer_Offset = 0x140003160;
+uint64_t get_sEarthAtk = 0x140004720;
+uint64_t getGSound = 0x140003AA0;
+
+uint64_t FUN_140360F70 = 0x140360F70;
+uint64_t FUN_140455640 = 0x140455640;
+uint64_t FUN_140006850 = 0x140006850;
+uint64_t FUN_140048280 = 0x140048280;
+uint64_t FUN_140006830 = 0x140006830;
+uint64_t FUN_140238640 = 0x140238640;
+uint64_t FUN_140362170 = 0x140362170;
+uint64_t FUN_140361450 = 0x140361450;
+uint64_t FUN_140361FA0 = 0x140361FA0;
+uint64_t FUN_1402BC1A0 = 0x1402BC1A0;
+uint64_t FUN_140362CE0 = 0x140362CE0;
+uint64_t FUN_14024E120 = 0x14024E120;
+uint64_t FUN_1402AA2B0 = 0x1402AA2B0;
+uint64_t FUN_140A6A420 = 0x140A6A420;
+uint64_t FUN_1402AAC40 = 0x1402AAC40;
+
 
 //Resource_ReleaseRef
 uint64_t Resource_ReleaseRef_Offset = 0x14050D5A0;
@@ -158,8 +178,8 @@ uint64_t FUN_1402B3390_Offset = 0x1402B3390;
 
 //FUN_140211EA0
 uint64_t FUN_140211EA0_Offset = 0x140211EA0;
-
 uint64_t FUN_140792A40 = 0x140792A40;
+uint64_t GetBattleSettings = 0x140004700;
 
 //From n3.
 static int __fastcall Hook_VidIdx(void* p) {
@@ -260,6 +280,9 @@ __attribute__((naked)) void OLD_1402177B0()//0x1402177B0
 			call LoadGlobalAsset
 			call GetsMvC3Manager
 			mov edx, 0x0000000D
+			mov rcx, rax
+			call LoadGlobalAsset
+			call GetsGameUI
 			mov rcx, rax
 			call LoadMainMenuResources
 
@@ -519,7 +542,10 @@ __attribute__((naked)) void FUN_1402177B0()//0x1402177B0
 		call GetsMvC3Manager
 		mov edx, 0x0000000D
 		mov rcx, rax
-		call LoadMainMenuResources
+		call LoadGlobalAsset
+		call GetsGameUI
+		mov rcx, rax
+		call LoadMainMenuResources//0x1402BDD60
 
 
 		mov rbx, [rsp + 0x38]
@@ -530,6 +556,404 @@ __attribute__((naked)) void FUN_1402177B0()//0x1402177B0
 		ret
 
 	}
+}
+
+//Big function that contains code that checks for shoulder bumper inputs for color scrolling.
+__attribute__((naked)) void OLD_140362BB0()
+{
+
+	_asm
+	{
+		mov[rsp + 0x18], rbx
+		push rsi
+		push rdi
+		push r12
+		push r13
+		push r15
+		sub rsp, 0x60
+		mov eax, edx
+		mov ebx, r8d
+		mov rdi, rcx
+		mov r13d, 0x00000001
+		xor r8d, r8d
+		xor edx, edx
+		mov r9d, r13d
+		mov ecx, eax
+		call FUN_140455640
+		lea r9d, [r13 + 0x01]
+		xor r8d, r8d
+		xor edx, edx
+		mov ecx, ebx
+		mov r15d, eax
+		call FUN_140455640
+		lea r8, [rsp + 0x40]
+		mov edx, r15d
+		mov rcx, rdi
+		movsxd  r12, eax
+		call FUN_140360F70
+		lea rdx, [r15 + r15 * 0x02]
+		mov ebx, r15d
+		add rdx, r12
+		lea rsi, [rdx + rdx * 0x02]
+		call GetBattleSettings
+		mov rcx, rax
+		call FUN_140006850
+		test al, al
+		je LOC_140362C45
+		call get_sEarthAtk
+		mov rcx, rax
+		call FUN_140048280
+		cmp eax, 0x02
+		jne LOC_140362C45
+
+		LOC_140362C35 :
+
+		mov dword ptr[rdi + rsi * 4 + 0x0000017C], 0x00000006
+			jmp LOC_140362DF4
+
+			LOC_140362C45 :
+
+		call GetBattleSettings
+			mov rcx, rax
+			call FUN_140006830
+			test al, al
+			je LOC_140362C68
+			call get_sEarthAtk
+			mov rcx, rax
+			call FUN_140238640
+			cmp eax, 0x02
+			je LOC_140362C35
+
+			LOC_140362C68 :
+
+		mov rcx, [rdi + r15 * 8 + 0x00000120]
+
+			LOC_140362C70 :
+
+			mov[rsp + 0x00000090], rbp
+			test rcx, rcx
+			je LOC_140362C91
+			call FUN_140362170
+			test al, al
+			je LOC_140362C91
+			mov dword ptr[rdi + rsi * 4 + 0x0000017C], 00000000
+
+			LOC_140362C91:
+
+		mov edx, r15d
+			mov rcx, rdi
+			call FUN_140361450
+			mov ebp, [rsp + 0x48]
+			test ebp, 0x00000300
+			je LOC_140362DEC
+			mov ecx, [rdi + rsi * 4 + 0x00000178]
+
+			LOC_140362CB3:
+
+		mov[rsp + 0x00000098], r14
+			call FUN_140361FA0
+			mov r14d, eax
+			test eax, eax
+			je LOC_140362DE4
+			lea ecx, [rax - 0x34]
+			cmp ecx, 0x03
+			jbe LOC_140362DE4
+			shr ebp, 0x08
+			and bpl, r13b
+			nop dword ptr[rax]
+
+			LOC_140362CE0:
+
+		xor bl, bl
+			call GetsGameUI
+			mov r8d, [rdi + rsi * 0x4 + 0x0000017C]
+			movzx r9d, bpl
+			mov edx, r14d
+			mov rcx, rax
+			call FUN_1402BC1A0
+			mov[rdi + rsi * 0x4 + 0x0000017C], eax
+			call GetBattleSettings
+			mov rcx, rax
+			call FUN_140006850
+			test al, al
+			je LOC_140362D3E
+			call get_sEarthAtk
+			mov rcx, rax
+			call FUN_140048280
+			cmp eax, r13d
+			jne LOC_140362D3E
+			mov eax, [rdi + rsi * 0x4 + 0x0000017C]
+			movzx ebx, bl
+			sub eax, 0x06
+			test eax, 0xFFFFFFFD
+			cmove ebx, r13d
+
+			LOC_140362D3E :
+
+		call GetBattleSettings
+			mov rcx, rax
+			call FUN_140006830
+			test al, al
+			je LOC_140362D76
+			call get_sEarthAtk
+			mov rcx, rax
+			call FUN_140238640
+			cmp eax, r13d
+			jne LOC_140362D76
+			mov eax, [rdi + rsi * 0x4 + 0x0000017C]
+			sub eax, 0x06
+			test eax, 0xFFFFFFFD
+			je FUN_140362CE0
+
+			LOC_140362D76 :
+
+		test bl, bl
+			jne FUN_140362CE0
+			call GetsGameUI
+			mov r9d, [rdi + rsi * 0x4 + 0x0000017C]
+			mov r8d, r12d
+			mov rcx, rax
+			mov edx, r15d
+			call FUN_14024E120
+			call getGSound
+			lea rdx, [rsp + 0x40]
+			mov rcx, rax
+			mov r8d, r13d
+			call FUN_1402AA2B0
+			mov rbx, rax
+			call getGSound
+			lea rdx, [rsp + 0x50]
+			movss xmm0, [DWORD_140A6A420]
+			mov rcx, rax
+			xor eax, eax
+			mov r8, rbx
+			mov[rsp + 0x30], rax
+			lea r9d, [rax + 0x09]
+			movss[rsp + 0x28], xmm0
+			mov[rsp + 0x20], rax
+			call FUN_1402AAC40
+
+			LOC_140362DE4:
+
+		mov r14, [rsp + 0x00000098]
+
+			LOC_140362DEC:
+
+			mov rbp, [rsp + 0x00000090]
+
+			LOC_140362DF4:
+
+			mov rbx, [rsp + 0x000000A0]
+			add rsp, 0x60
+			pop r15
+			pop r13
+			pop r12
+			pop rdi
+			pop rsi
+			ret
+
+	}
+
+
+}
+
+//Big function that contains code that checks for shoulder bumper inputs for color scrolling.
+__attribute__((naked)) void FUN_140362BB0()
+{
+
+	_asm
+	{
+		mov[rsp + 0x18], rbx
+		push rsi
+		push rdi
+		push r12
+		push r13
+		push r15
+		sub rsp, 0x60
+		mov eax, edx
+		mov ebx, r8d
+		mov rdi, rcx
+		mov r13d, 0x00000001
+		xor r8d, r8d
+		xor edx, edx
+		mov r9d, r13d
+		mov ecx, eax
+		call FUN_140455640
+		lea r9d, [r13 + 0x01]
+		xor r8d, r8d
+		xor edx, edx
+		mov ecx, ebx
+		mov r15d, eax
+		call FUN_140455640
+		lea r8, [rsp + 0x40]
+		mov edx, r15d
+		mov rcx, rdi
+		movsxd  r12, eax
+		call FUN_140360F70
+		lea rdx, [r15 + r15 * 0x02]
+		mov ebx, r15d
+		add rdx, r12
+		lea rsi, [rdx + rdx * 0x02]
+		call GetBattleSettings
+		mov rcx, rax
+		call FUN_140006850
+		test al, al
+		je LOC_140362C45
+		call get_sEarthAtk
+		mov rcx, rax
+		call FUN_140048280
+		cmp eax, 0x02
+		jne LOC_140362C45
+
+		LOC_140362C35 :
+
+		mov dword ptr[rdi + rsi * 4 + 0x0000017C], 0x00000006
+			jmp LOC_140362DF4
+
+			LOC_140362C45 :
+
+		call GetBattleSettings
+			mov rcx, rax
+			call FUN_140006830
+			test al, al
+			je LOC_140362C68
+			call get_sEarthAtk
+			mov rcx, rax
+			call FUN_140238640
+			cmp eax, 0x02
+			je LOC_140362C35
+
+			LOC_140362C68 :
+
+		mov rcx, [rdi + r15 * 8 + 0x00000120]
+
+			LOC_140362C70 :
+
+			mov[rsp + 0x00000090], rbp
+			test rcx, rcx
+			je LOC_140362C91
+			call FUN_140362170
+			test al, al
+			je LOC_140362C91
+			mov dword ptr[rdi + rsi * 4 + 0x0000017C], 00000000
+
+			LOC_140362C91:
+
+		mov edx, r15d
+			mov rcx, rdi
+			call FUN_140361450
+			mov ebp, [rsp + 0x48]
+			test ebp, 0x00000300
+			je LOC_140362DEC
+			mov ecx, [rdi + rsi * 4 + 0x00000178]
+
+			LOC_140362CB3:
+
+		mov[rsp + 0x00000098], r14
+			call FUN_140361FA0
+			mov r14d, eax
+			test eax, eax
+			je LOC_140362DE4
+			lea ecx, [rax - 0x34]
+			cmp ecx, 0x03
+			jbe LOC_140362DE4
+			shr ebp, 0x08
+			and bpl, r13b
+			nop dword ptr[rax]
+
+			LOC_140362CE0:
+
+		xor bl, bl
+			call GetsGameUI
+			mov r8d, [rdi + rsi * 0x4 + 0x0000017C]
+			movzx r9d, bpl
+			mov edx, r14d
+			mov rcx, rax
+			call FUN_1402BC1A0
+			mov[rdi + rsi * 0x4 + 0x0000017C], eax
+			call GetBattleSettings
+			mov rcx, rax
+			call FUN_140006850
+			test al, al
+			je LOC_140362D3E
+			call get_sEarthAtk
+			mov rcx, rax
+			call FUN_140048280
+			cmp eax, r13d
+			jne LOC_140362D3E
+			mov eax, [rdi + rsi * 0x4 + 0x0000017C]
+			movzx ebx, bl
+			sub eax, 0x06
+			test eax, 0xFFFFFFFD
+			cmove ebx, r13d
+
+			LOC_140362D3E :
+
+		call GetBattleSettings
+			mov rcx, rax
+			call FUN_140006830
+			test al, al
+			je LOC_140362D76
+			call get_sEarthAtk
+			mov rcx, rax
+			call FUN_140238640
+			cmp eax, r13d
+			jne LOC_140362D76
+			mov eax, [rdi + rsi * 0x4 + 0x0000017C]
+			sub eax, 0x06
+			test eax, 0xFFFFFFFD
+			je FUN_140362CE0
+
+			LOC_140362D76 :
+
+		test bl, bl
+			jne FUN_140362CE0
+			call GetsGameUI
+			mov r9d, [rdi + rsi * 0x4 + 0x0000017C]
+			mov r8d, r12d
+			mov rcx, rax
+			mov edx, r15d
+			call FUN_14024E120
+			call getGSound
+			lea rdx, [rsp + 0x40]
+			mov rcx, rax
+			mov r8d, r13d
+			call FUN_1402AA2B0
+			mov rbx, rax
+			call getGSound
+			lea rdx, [rsp + 0x50]
+			movss xmm0, [DWORD_140A6A420]
+			mov rcx, rax
+			xor eax, eax
+			mov r8, rbx
+			mov[rsp + 0x30], rax
+			lea r9d, [rax + 0x09]
+			movss[rsp + 0x28], xmm0
+			mov[rsp + 0x20], rax
+			call FUN_1402AAC40
+
+			LOC_140362DE4 :
+
+		mov r14, [rsp + 0x00000098]
+
+			LOC_140362DEC :
+
+			mov rbp, [rsp + 0x00000090]
+
+			LOC_140362DF4 :
+
+			mov rbx, [rsp + 0x000000A0]
+			add rsp, 0x60
+			pop r15
+			pop r13
+			pop r12
+			pop rdi
+			pop rsi
+			ret
+
+	}
+
+
 }
 
 //Checks the version of the game.
@@ -552,6 +976,9 @@ void OnInitializeHook()
 {
 	Trampoline* tramp = Trampoline::MakeTrampoline(GetModuleHandle(nullptr));
 	InjectHook(_addr(0x140217763), tramp->Jump(FUN_1402177B0), HookType::Call);
+
+	//InjectHook(_addr(0x14036515D), tramp->Jump(FUN_140362BB0), HookType::Call);
+
 
 	if(DisableIntro)
 	{
